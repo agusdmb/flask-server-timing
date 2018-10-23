@@ -4,13 +4,12 @@ application = None
 
 
 class ProfileManager():
-
     def __init__(self, app, mode):
         global application
         self.app = app
         application = app
         if mode.lower() == 'debug':
-            import add_headers
+            from .add_headers import after_request
 
     def start(self, key):
         start_time = datetime.datetime.now()

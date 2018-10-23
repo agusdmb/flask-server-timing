@@ -1,6 +1,6 @@
 from flask import request
 
-from profile_manager import application
+from .profile_manager import application
 
 
 @application.after_request
@@ -9,7 +9,7 @@ def after_request(response):
         request_context = request.context
         if request_context:
             timing_list = []
-            for key, val in request_context.iteritems():
+            for key, val in request_context.items():
                 key = key.replace(' ', '-')
                 timing = key + ';dur=' + str(val) + ';desc="' + key + '"'
                 timing_list.append(timing)
@@ -17,4 +17,5 @@ def after_request(response):
             response.headers.set('Server-Timing', timings)
     except:
         pass
+
     return response
