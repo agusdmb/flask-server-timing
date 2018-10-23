@@ -1,8 +1,5 @@
 # HTTP Server-Timing for Python Flask
-  * Installation
-  ```
-    pip install server-timing-profiler
-   ```
+
 This is a library including middleware for using
 [HTTP Server-Timing](https://www.w3.org/TR/server-timing) with Python. This header
 allows a server to send timing information from the backend, such as database
@@ -12,6 +9,8 @@ in the standard browser developer tools:
 ![Server Timing Example](https://github.com/PammyS/server-timing-profiler/blob/master/example/ScreenShot.png)
 
 ## Features
+
+  * Supports both Python 2 and 3.
 
   * Middleware for injecting the server timing into the request `Context`
     and writing the `Server-Timing` header.
@@ -60,12 +59,12 @@ def hello():
     print 'test start sleep'
 
     '''
-    To profile any code snippet or call to external services , 
-    call the start with a unique key and after the code snippet call stop function. 
+    To profile any code snippet or call to external services ,
+    call the start with a unique key and after the code snippet call stop function.
     Also make sure to add call stop function [profiler.stop('<key>')]  with the same
     key you started with, otherwise status will not be reflect.
     '''
-    
+
     profiler.start('App 1')
     time.sleep(1)
     profiler.stop('App 1')
@@ -87,4 +86,4 @@ def hello():
 
 app.run(host="0.0.0.0",port=8080,debug=True)
 ```
-Note: Recommended not to enable this in production environment
+Note: It is not recommended enable this in production environments
