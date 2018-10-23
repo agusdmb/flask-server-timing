@@ -1,21 +1,12 @@
-from flask import request
+import flask
 
 from .profile_manager import application
 
 
 @application.after_request
 def after_request(response):
-    try:
-        request_context = request.context
-        if request_context:
-            timing_list = []
-            for key, val in request_context.items():
-                key = key.replace(' ', '-')
-                timing = key + ';dur=' + str(val) + ';desc="' + key + '"'
-                timing_list.append(timing)
-            timings = ', '.join(timing_list)
-            response.headers.set('Server-Timing', timings)
-    except:
-        pass
+    if flask.has_request_context() and flask.request.context:
+        timing_list = [key.replace(' ', '-') + ';dur=' + str(val) + ';desc="' + key.replace(' ', '-') + '"' for key, val in flask.request.context.items()]
+        response.headers.set('Server-Timing', ', '.join(timing_list))
 
     return response
