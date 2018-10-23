@@ -19,10 +19,11 @@ class ProfileManager():
         except:
             ctx = {}
 
-        ctx[key] = {'start': start_time}
+        ctx[key.replace(' ', '-')] = {'start': start_time}
         request.context = ctx
 
     def stop(self, key):
+        key = key.replace(' ', '-')
         stop_time = datetime.datetime.now()
         try:
             ctx = request.context
