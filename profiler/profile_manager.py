@@ -1,5 +1,7 @@
-from flask import request
+import flask
 import datetime
+from flask import request
+
 application = None
 
 
@@ -12,27 +14,23 @@ class ProfileManager():
             from .add_headers import after_request
 
     def start(self, key):
-        start_time = datetime.datetime.now()
-        ctx = None
-        try:
-            ctx = request.context
-        except:
-            ctx = {}
+        if not flask.has_request_context():
+            return
 
-        ctx[key.replace(' ', '-')] = {'start': start_time}
-        request.context = ctx
+        if not hasattr(request, 'context'):
+            request.context = {}
+
+        request.context[key.replace(' ', '-')] = {'start': datetime.datetime.now()}
 
     def stop(self, key):
+        if not flask.has_request_context() or not hasattr(request, 'context'):
+            return
+
         key = key.replace(' ', '-')
+        if not key in request.context:
+            return
+
         stop_time = datetime.datetime.now()
-        try:
-            ctx = request.context
-            if ctx and key in ctx:
-                data = ctx.get(key, {})
-                start_time = data.get('start')
-                if start_time:
-                    diff = stop_time - start_time
-                    millis = diff.total_seconds()*1000
-                    ctx[key] = millis
-        except:
-            pass
+        start_time = request.context.get(key, {}).get('start')
+        if start_time:
+            request.context[key] = (stop_time - start_time).total_seconds() * 1000
