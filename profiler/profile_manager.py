@@ -2,16 +2,11 @@ import flask
 import datetime
 from flask import request
 
-application = None
-
 
 class ProfileManager():
     def __init__(self, app, mode):
-        global application
-        self.app = app
-        application = app
         if mode.lower() == 'debug':
-            from .add_headers import after_request
+            app.after_request(ProfileManager._add_header)
 
     def start(self, key):
         if not flask.has_request_context():
@@ -34,3 +29,11 @@ class ProfileManager():
         start_time = request.context.get(key, {}).get('start')
         if start_time:
             request.context[key] = (stop_time - start_time).total_seconds() * 1000
+
+    @staticmethod
+    def _add_header(response):
+        if flask.has_request_context() and flask.request.context:
+            timing_list = [key + ';dur=' + str(val) + ';desc="' + key + '"' for key, val in flask.request.context.items()]
+            response.headers.set('Server-Timing', ', '.join(timing_list))
+
+        return response
