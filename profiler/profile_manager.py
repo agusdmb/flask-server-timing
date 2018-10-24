@@ -2,6 +2,8 @@ import flask
 import datetime
 from flask import request
 
+from contextlib import contextmanager
+
 
 class ProfileManager():
     def __init__(self, app, mode):
@@ -29,6 +31,12 @@ class ProfileManager():
         start_time = request.context.get(key, {}).get('start')
         if start_time:
             request.context[key] = (stop_time - start_time).total_seconds() * 1000
+
+    @contextmanager
+    def time(self, key):
+        self.start(key)
+        yield key
+        self.stop(key)
 
     @staticmethod
     def _add_header(response):
