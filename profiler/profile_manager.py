@@ -9,6 +9,7 @@ from functools import partial, wraps
 
 class ProfileManager():
     def __init__(self, app, mode):
+        self.debug = 'None' == mode
         self.log = logging.getLogger()
         if mode.lower() == 'debug':
             self.debug = True
