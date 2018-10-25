@@ -4,12 +4,14 @@ import logging
 from flask import request
 
 from contextlib import contextmanager
+from functools import partial, wraps
 
 
 class ProfileManager():
     def __init__(self, app, mode):
         self.log = logging.getLogger()
         if mode.lower() == 'debug':
+            self.debug = True
             self.log.info("Setting up after-request handler to add server timing header")
             app.after_request(ProfileManager._add_header)
 
@@ -45,6 +47,21 @@ class ProfileManager():
         self.start(key)
         yield key
         self.stop(key)
+
+    def timer(self, f=None, name=None):
+        if f is None:
+            return partial(self.timer, name=name)
+
+        if not self.debug:
+            self.log.debug("Mode is not set to 'debug' - not wrapping function for timing")
+            return f
+
+        @wraps(f)
+        def wrapper(*args, **kwds):
+            with self.time(name or f.__name__):
+                return f(*args, **kwds)
+
+        return wrapper
 
     @staticmethod
     def _add_header(response):
