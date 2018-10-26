@@ -10,7 +10,7 @@ DESCRIPTION = open(README_PATH).read()
 
 setup(
     name='server-timing-profiler',
-    version='0.0.2',
+    version='0.1.0',
     description='HTTP Server-Timing for Python Flask',
     long_description=DESCRIPTION,
     license='Apache License 2.0',
