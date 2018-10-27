@@ -1,6 +1,6 @@
 import time
 
-from profiler import Timing as t
+from server_timing import Timing as t
 
 
 @t.timer

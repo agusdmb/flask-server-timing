@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 import logging
 import time
 
-from profiler import Timing
+from server_timing import Timing
 
 
 logging.basicConfig()
