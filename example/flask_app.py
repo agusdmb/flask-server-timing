@@ -1,33 +1,39 @@
 from flask import Flask, jsonify
+import logging
 import time
-from profiler.profile_manager import ProfileManager
 
+from profiler import Timing
+
+
+logging.basicConfig()
 app = Flask(__name__)
+t = Timing(app, force_debug=True)
 
-profiler = ProfileManager(app, 'debug')
+from include import include # has to imported _after_ initialization
 
 
-@app.route("/test", methods=["GET"])
-def hello():
-    print 'test start sleep'
+@app.route('/')
+def root():
+    with t.time('root'):
+        time.sleep(0.2)
 
-    profiler.start('App 1')
-    time.sleep(1)
-    profiler.stop('App 1')
+    t.start('done and done')
+    time.sleep(0.3)
+    t.stop('done and done')
 
-    profiler.start('App 2')
-    time.sleep(2)
-    profiler.stop('App 2')
+    r = to_be_timed()
 
-    profiler.start('App 3')
-    time.sleep(3)
-    profiler.stop('App 3')
+    include()
 
-    profiler.start('App 4')
-    time.sleep(4)
-    profiler.stop('App 4')
+    return jsonify("W00t!: {}".format(r))
 
-    print 'test stop sleep'
-    return jsonify({'success':True})
 
-app.run(host="0.0.0.0",port=8080,debug=True)
+@t.timer(name='decorated')
+def to_be_timed():
+    time.sleep(0.4)
+
+    return True
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', threaded=True)
