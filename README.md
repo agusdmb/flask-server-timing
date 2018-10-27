@@ -12,7 +12,7 @@ The Server-Timing specification is a [W3C draft](https://www.w3.org/TR/server-ti
 ## Installation
 
 ```
-pip install -U https://github.com/rodrobin/flask-server-timing
+pip install git+https://github.com/rodrobin/flask-server-timing
 ```
 
 Python versions 2.7 and 3.x are supported with Flask from version 0.10.1.
