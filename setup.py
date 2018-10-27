@@ -7,21 +7,22 @@ except ImportError:
 BASE_DIR = os.path.dirname(__file__)
 README_PATH = os.path.join(BASE_DIR, 'README.md')
 DESCRIPTION = open(README_PATH).read()
+KEYWORDS = 'Python Flask Server-Timing Header Extension'
 
 setup(
-    name='server-timing-profiler',
-    version='0.1.0',
-    description='HTTP Server-Timing for Python Flask',
+    name='flask-server-timing',
+    version='0.1.1',
+    description=KEYWORDS,
     long_description=DESCRIPTION,
     license='Apache License 2.0',
-    author='Perminder Singh',
-    author_email='svicky9797@gmail.com',
+    author='Robin Peters',
+    author_email='github@rpeters.dk',
     packages=find_packages(),
     install_requires=[
         'Flask>=0.10.1'
     ],
-    keywords='HTTP Server-Timing for Python Flask',
-    url='https://github.com/PammyS/server-timing-profiler',
+    keywords=KEYWORDS,
+    url='https://github.com/rodrobin/flask-server-timing',
     namespace_packages=[],
     platforms='Linux, POSIX',
     entry_points={
@@ -31,5 +32,6 @@ setup(
     },
     classifiers=[
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
     ],
 )

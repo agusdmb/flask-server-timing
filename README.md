@@ -1,89 +1,81 @@
-# HTTP Server-Timing for Python Flask
+# Flask Server-Timing Header Extension
 
-This is a library including middleware for using
-[HTTP Server-Timing](https://www.w3.org/TR/server-timing) with Python. This header
-allows a server to send timing information from the backend, such as database
-access time, file reads, etc. The timing information can be then be inspected
-in the standard browser developer tools:
+A Flask extension to easily add the Server-Timing header to allow supported browsers to show backend performance metrics.
 
-![Server Timing Example](https://github.com/PammyS/server-timing-profiler/blob/master/example/ScreenShot.png)
+From the [Mozilla Developer site](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing):
 
-## Features
+> The Server-Timing header communicates one or more metrics and descriptions for a given request-response cycle. It is used to surface any backend server timing metrics (e.g. database read/write, CPU time, file system access, etc.) in the developer tools in the user's browser
 
-  * Supports both Python 2 and 3.
 
-  * Middleware for injecting the server timing into the request `Context`
-    and writing the `Server-Timing` header.
+The Server-Timing specification is a [W3C draft](https://www.w3.org/TR/server-timing)
 
-  * Concurrency-safe structures for easily recording timings of multiple
-    concurrency tasks.
+## Installation
 
-  * Parse `Server-Timing` headers as a client.
+```
+pip install -U https://github.com/rodrobin/flask-server-timing
+```
 
-  * Note: No browser properly supports sending the Server-Timing header as
-    an [HTTP Trailer](https://tools.ietf.org/html/rfc7230#section-4.4) so
-	the Middleware only supports a normal header currently.
+Python versions 2.7 and 3.x are supported with Flask from version 0.10.1.
 
 ## Browser Support
 
-Browser support is required to **view** server timings easily. Because server
-timings are sent as an HTTP header, there is no negative impact to sending
-the header to unsupported browsers.
-
-  * **Chrome 65 or higher** is required to properly display server timings
-    in the devtools.
+Generally all newer, major browsers - excluding IE and Safari - support visualizing the Server-Timing header. For an up-to-date list with specific versions see the [Mozilla Developer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing#Browser_compatibility) site
 
 ## Usage
 
-Example usage is shown below. A fully runnable example is available in
-the `example/` directory.
-
 ```python
-from flask import Flask, jsonify
+from flask import Flask
 import time
 
-# Import ProfileManager
-from profiler.profile_manager import ProfileManager
+# Import extension
+from from server_timing import Timing
 
 app = Flask(__name__)
-'''
-Bind you app object with ProfileManager and pass app object along with 'debug' mode to enable the
-result in reposne headers. If PROD or DEV is set you will not get stats in reponse to make sure
-even if you miss to comment this code in prod, it will not affect your application
-'''
-profiler = ProfileManager(app, 'debug')
+
+# To initialize the extension simply pass the app to it. If the app is in debug
+# mode or the force_debug parameter is True an after-request handler will be added
+# to write the actual header.
+t = Timing(app, force_debug=True)
 
 
-@app.route("/test", methods=["GET"])
-def hello():
-    print 'test start sleep'
+@app.route("/examples")
+def examples():
+    # explicitly calling start and stop before and after - keys need to be identical
+    t.start('done and done')
+    time.sleep(0.3)
+    t.stop('done and done')
 
-    '''
-    To profile any code snippet or call to external services ,
-    call the start with a unique key and after the code snippet call stop function.
-    Also make sure to add call stop function [profiler.stop('<key>')]  with the same
-    key you started with, otherwise status will not be reflect.
-    '''
+    # context manager support to avoid having to call start and stop explicitly
+    with t.time('context'):
+        time.sleep(0.2)
 
-    profiler.start('App 1')
-    time.sleep(1)
-    profiler.stop('App 1')
+    # decorated with name being the key
+    named_decoration()
+    # decorated without name so the function is the key
+    unnamed_decoration()
 
-    profiler.start('App 2')
-    time.sleep(2)
-    profiler.stop('App 2')
+@t.timer(name='named')
+def named_decoration():
+    time.sleep(0.4)
 
-    profiler.start('App 3')
-    time.sleep(3)
-    profiler.stop('App 3')
+@t.timer
+def unnamed_decoration():
+    time.sleep(0.5)
 
-    profiler.start('App 4')
-    time.sleep(4)
-    profiler.stop('App 4')
 
-    print 'test stop sleep'
-    return jsonify({'success':True})
-
-app.run(host="0.0.0.0",port=8080,debug=True)
+app.run(host="0.0.0.0",port=8080)
 ```
-Note: It is not recommended enable this in production environments
+
+The `example/` directory also contains the following file showing how to time functions in other modules:
+
+```python
+import time
+
+# before this file is imported make sure the extension has been initialized with the Flask app
+from server_timing import Timing as t
+
+
+@t.timer
+def include():
+    time.sleep(0.1)
+```
