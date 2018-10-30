@@ -11,7 +11,7 @@ KEYWORDS = 'Python Flask Server-Timing Header Extension'
 
 setup(
     name='flask-server-timing',
-    version='0.1.1',
+    version='0.1.2',
     description=KEYWORDS,
     long_description=DESCRIPTION,
     license='Apache License 2.0',
